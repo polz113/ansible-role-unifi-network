@@ -64,3 +64,11 @@
       state: link
       follow: false
   when: ansible_distribution != 'Debian'
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name: "unifi"
+    state: latest
+    update_cache: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: ansible_distribution == 'Debian'
