@@ -54,26 +54,26 @@
     var: _temp_dir
     verbosity: 3
 
-- name: Get and unarchive UniFi Network application package
-  when:
-    - unifi_package_url is defined
-    - _temp_dir is defined
-  ansible.builtin.unarchive:
-    src: "{{ unifi_package_url }}"
-    dest: "{{ _temp_dir.path }}/"
-    remote_src: true
-    unsafe_writes: true
-    extra_opts:
-      - -qq
-    creates: "{{ _temp_dir.path }}/UniFi"
-
-- name: Template systemd unit file
-  when:
-    - ansible_service_mgr == "systemd"
-    - unifi_service_status is false
-  ansible.builtin.template:
-    src: "{{ role_path }}/templates/unifi.service.j2"
-    dest: /usr/lib/systemd/system/unifi.service
-    owner: "{{ unifi_user }}"
-    group: "{{ unifi_group }}"
-    mode: '0644'
+#- name: Get and unarchive UniFi Network application package
+#  when:
+#    - unifi_package_url is defined
+#    - _temp_dir is defined
+#  ansible.builtin.unarchive:
+#    src: "{{ unifi_package_url }}"
+#    dest: "{{ _temp_dir.path }}/"
+#    remote_src: true
+#    unsafe_writes: true
+#    extra_opts:
+#      - -qq
+#    creates: "{{ _temp_dir.path }}/UniFi"
+#
+#- name: Template systemd unit file
+#  when:
+#    - ansible_service_mgr == "systemd"
+#    - unifi_service_status is false
+#  ansible.builtin.template:
+#    src: "{{ role_path }}/templates/unifi.service.j2"
+#    dest: /usr/lib/systemd/system/unifi.service
+#    owner: "{{ unifi_user }}"
+#    group: "{{ unifi_group }}"
+#    mode: '0644'

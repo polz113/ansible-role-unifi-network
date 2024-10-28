@@ -1,40 +1,66 @@
 ---
-- name: Create 'data' directory
-  ansible.builtin.file:
-    path: "{{ unifi_data_real_path }}"
-    state: directory
-    mode: 0755
-    owner: "{{ unifi_user }}"
-    group: "{{ unifi_group }}"
+- block:
+  - name: Get and unarchive UniFi Network application package
+    when:
+      - unifi_package_url is defined
+      - _temp_dir is defined
+    ansible.builtin.unarchive:
+      src: "{{ unifi_package_url }}"
+      dest: "{{ _temp_dir.path }}/"
+      remote_src: true
+      unsafe_writes: true
+      extra_opts:
+        - -qq
+      creates: "{{ _temp_dir.path }}/UniFi"
 
-- name: Copy application directory to '/opt'
-  tags:
-    - molecule-idempotence-notest
-  ansible.builtin.copy:
-    src: "{{ _temp_dir.path }}/UniFi/"
-    dest: "{{ target_path }}"
-    remote_src: true
-    owner: "{{ unifi_user }}"
-    group: "{{ unifi_group }}"
-    mode: preserve
-    force: false
-  vars:
-    target_path: "{{ unifi_install_real_path }}"
+  - name: Template systemd unit file
+    when:
+      - ansible_service_mgr == "systemd"
+      - unifi_service_status is false
+    ansible.builtin.template:
+      src: "{{ role_path }}/templates/unifi.service.j2"
+      dest: /usr/lib/systemd/system/unifi.service
+      owner: "{{ unifi_user }}"
+      group: "{{ unifi_group }}"
+      mode: '0644'
 
-- name: Link versioned install path to vanity path
-  ansible.builtin.file:
-    src: "{{ unifi_install_real_path }}"
-    dest: "{{ unifi_install_vanity_path }}"
-    owner: "{{ unifi_user }}"
-    group: "{{ unifi_group }}"
-    state: link
-    follow: false
+  - name: Create 'data' directory
+    ansible.builtin.file:
+      path: "{{ unifi_data_real_path }}"
+      state: directory
+      mode: 0755
+      owner: "{{ unifi_user }}"
+      group: "{{ unifi_group }}"
 
-- name: Link data directory to install data path
-  ansible.builtin.file:
-    src: "{{ unifi_data_real_path }}"
-    dest: "{{ unifi_data_working_path }}"
-    owner: "{{ unifi_user }}"
-    group: "{{ unifi_group }}"
-    state: link
-    follow: false
+  - name: Copy application directory to '/opt'
+    tags:
+      - molecule-idempotence-notest
+    ansible.builtin.copy:
+      src: "{{ _temp_dir.path }}/UniFi/"
+      dest: "{{ target_path }}"
+      remote_src: true
+      owner: "{{ unifi_user }}"
+      group: "{{ unifi_group }}"
+      mode: preserve
+      force: false
+    vars:
+      target_path: "{{ unifi_install_real_path }}"
+
+  - name: Link versioned install path to vanity path
+    ansible.builtin.file:
+      src: "{{ unifi_install_real_path }}"
+      dest: "{{ unifi_install_vanity_path }}"
+      owner: "{{ unifi_user }}"
+      group: "{{ unifi_group }}"
+      state: link
+      follow: false
+
+  - name: Link data directory to install data path
+    ansible.builtin.file:
+      src: "{{ unifi_data_real_path }}"
+      dest: "{{ unifi_data_working_path }}"
+      owner: "{{ unifi_user }}"
+      group: "{{ unifi_group }}"
+      state: link
+      follow: false
+  when: ansible_distribution != 'Debian'
