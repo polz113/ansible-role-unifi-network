@@ -26,3 +26,7 @@
 - name: Set MongoDB PGP key url
   ansible.builtin.set_fact:
     mongodb_pgp_key_url: https://www.mongodb.org/static/pgp/server-{{ mongodb_version }}.asc
+
+- name: Set Unifi PGP key url
+  ansible.builtin.set_fact:
+    unifi_pgp_key_url: https://dl.ui.com/unifi/unifi-repo.gpg
