@@ -5,7 +5,7 @@ unifi_create_user: true
 unifi_user: ubnt
 unifi_group: "{{ unifi_user }}"
 
-unifi_version: 8.1.113
+unifi_version: 8.5.6
 unifi_package_url: "https://dl.ui.com/unifi/{{ unifi_version }}/UniFi.unix.zip"
 unifi_install_real_path: /opt/unifi-{{ unifi_version }}
 unifi_install_vanity_path: /opt/unifi
