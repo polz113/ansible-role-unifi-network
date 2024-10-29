@@ -30,6 +30,7 @@
 
 - name: Include tasks to create system user and group
   ansible.builtin.include_tasks: "set-user.yml"
+  when: ansible_distribution != 'Debian'
 
 - name: Include pre-tasks
   ansible.builtin.include_tasks: "pre-tasks.yml"
